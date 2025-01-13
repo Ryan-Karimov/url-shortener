@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_USER=postgres
+      - DB_PASSWORD=Kr18111998
+      - DB_HOST=db
+      - DB_NAME=url_shortener
+      - DB_PORT=5432
+    depends_on:
+      - db
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Kr18111998
+      POSTGRES_DB: url_shortener
+    ports:
+      - "5432:5432"
