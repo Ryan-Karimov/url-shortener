@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkHub - Сокращатель ссылок</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f7fa;
+      color: #1a1a2e;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #e1e5eb;
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0052cc;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: #0052cc;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .user-email {
+      color: #5e6c84;
+      font-size: 0.875rem;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* Auth Page */
+    .auth-container {
+      min-height: calc(100vh - 80px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+
+    .auth-header p {
+      color: #5e6c84;
+    }
+
+    .auth-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 32px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid #e1e5eb;
+      margin-bottom: 24px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #5e6c84;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .auth-tab:hover {
+      color: #0052cc;
+    }
+
+    .auth-tab.active {
+      color: #0052cc;
+    }
+
+    .auth-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #0052cc;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #344563;
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 0.875rem;
+      border: 1px solid #dfe1e6;
+      border-radius: 4px;
+      background: #fafbfc;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #0052cc;
+      background: #fff;
+    }
+
+    .form-input::placeholder {
+      color: #97a0af;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: #0052cc;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #0747a6;
+    }
+
+    .btn-secondary {
+      background: #f4f5f7;
+      color: #344563;
+      border: 1px solid #dfe1e6;
+    }
+
+    .btn-secondary:hover {
+      background: #ebecf0;
+    }
+
+    .btn-danger {
+      background: #de350b;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: #bf2600;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Alert Messages */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-bottom: 16px;
+    }
+
+    .alert-success {
+      background: #e3fcef;
+      color: #006644;
+      border: 1px solid #abf5d1;
+    }
+
+    .alert-error {
+      background: #ffebe6;
+      color: #de350b;
+      border: 1px solid #ffbdad;
+    }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+    }
+
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e1e5eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    /* Dashboard Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0052cc;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #5e6c84;
+      margin-top: 4px;
+    }
+
+    /* URL Form */
+    .url-form {
+      display: grid;
+      gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .url-form {
+        grid-template-columns: 2fr 1fr 1fr auto;
+        align-items: end;
+      }
+    }
+
+    /* URL List */
+    .url-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .url-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #5e6c84;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #f4f5f7;
+      border-bottom: 1px solid #e1e5eb;
+    }
+
+    .url-table td {
+      padding: 16px;
+      border-bottom: 1px solid #e1e5eb;
+      font-size: 0.875rem;
+    }
+
+    .url-table tr:hover {
+      background: #f9fafc;
+    }
+
+    .url-short {
+      color: #0052cc;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .url-short:hover {
+      text-decoration: underline;
+    }
+
+    .url-original {
+      color: #5e6c84;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .url-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .clicks-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      background: #e3fcef;
+      color: #006644;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    /* Analytics */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 280px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.875rem;
+      border-bottom: 1px solid #e1e5eb;
+    }
+
+    .data-table th {
+      font-weight: 600;
+      color: #5e6c84;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #e1e5eb;
+      border-radius: 3px;
+      overflow: hidden;
+      width: 60px;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #0052cc;
+      border-radius: 3px;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 16px;
+    }
+
+    .pagination-btn {
+      padding: 8px 12px;
+      border: 1px solid #dfe1e6;
+      background: #fff;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pagination-btn:hover {
+      background: #f4f5f7;
+    }
+
+    .pagination-btn.active {
+      background: #0052cc;
+      color: #fff;
+      border-color: #0052cc;
+    }
+
+    /* Hidden */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #5e6c84;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .url-table thead {
+        display: none;
+      }
+
+      .url-table tr {
+        display: block;
+        padding: 16px;
+        border-bottom: 1px solid #e1e5eb;
+      }
+
+      .url-table td {
+        display: block;
+        padding: 4px 0;
+        border: none;
+      }
+
+      .url-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #5e6c84;
+        font-size: 0.75rem;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .url-actions {
+        margin-top: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <span class="logo-icon">L</span>
+        LinkHub
+      </a>
+      <div id="headerActions" class="header-actions hidden">
+        <span class="user-email" id="userEmail"></span>
+        <button class="btn btn-secondary btn-sm" onclick="handleLogout()">Выйти</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Auth Section -->
+  <div id="authSection" class="auth-container">
+    <div class="auth-box">
+      <div class="auth-header">
+        <h1>Добро пожаловать в LinkHub</h1>
+        <p>Профессиональный сервис сокращения ссылок с детальной аналитикой</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="switchAuthTab('login')">Вход</button>
+          <button class="auth-tab" onclick="switchAuthTab('register')">Регистрация</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginTab">
+          <div id="loginMessage"></div>
+          <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label class="form-label" for="loginEmail">Электронная почта</label>
+              <input type="email" id="loginEmail" class="form-input" required placeholder="you@company.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="loginPassword">Пароль</label>
+              <input type="password" id="loginPassword" class="form-input" required placeholder="Введите пароль">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Войти</button>
+          </form>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerTab" class="hidden">
+          <div id="registerMessage"></div>
+          <form id="registerForm" onsubmit="handleRegister(event)">
+            <div class="form-group">
+              <label class="form-label" for="registerEmail">Электронная почта</label>
+              <input type="email" id="registerEmail" class="form-input" required placeholder="you@company.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="registerPassword">Пароль</label>
+              <input type="password" id="registerPassword" class="form-input" required minlength="6" placeholder="Минимум 6 символов">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Создать аккаунт</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Section -->
+  <div id="dashboardSection" class="container hidden">
+    <!-- Create URL Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Сократить ссылку</h2>
+      </div>
+      <div class="card-body">
+        <div id="createMessage"></div>
+        <form id="createUrlForm" class="url-form" onsubmit="handleCreateUrl(event)">
+          <div class="form-group" style="margin:0">
+            <label class="form-label" for="originalUrl">Оригинальная ссылка</label>
+            <input type="url" id="originalUrl" class="form-input" required placeholder="https://example.com/очень-длинная-ссылка">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label" for="alias">Свой алиас</label>
+            <input type="text" id="alias" class="form-input" maxlength="20" placeholder="необязательно">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label" for="expiresAt">Срок действия</label>
+            <input type="datetime-local" id="expiresAt" class="form-input">
+          </div>
+          <button type="submit" class="btn btn-primary">Сократить</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- URLs List Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Ваши ссылки</h2>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="url-table">
+          <thead>
+            <tr>
+              <th>Короткая ссылка</th>
+              <th>Оригинал</th>
+              <th>Переходы</th>
+              <th>Создана</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="urlList"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-state-icon">🔗</div>
+          <p>Ссылок пока нет. Создайте первую короткую ссылку выше.</p>
+        </div>
+      </div>
+      <div id="pagination" class="pagination" style="padding: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- Analytics Section -->
+  <div id="analyticsSection" class="container hidden">
+    <div style="margin-bottom: 24px;">
+      <button class="btn btn-secondary" onclick="showDashboard()">← Назад к панели</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalClicks">0</div>
+        <div class="stat-label">Всего переходов</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="uniqueVisitors">0</div>
+        <div class="stat-label">Уникальных посетителей</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Переходы по времени</h2>
+        <span id="analyticsShortUrl" style="color: #0052cc; font-weight: 500;"></span>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="dailyChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="analytics-grid">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Страны</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <table class="data-table" id="countriesTable">
+            <thead>
+              <tr><th>Страна</th><th>Переходы</th><th>Доля</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Устройства</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <table class="data-table" id="devicesTable">
+            <thead>
+              <tr><th>Устройство</th><th>Переходы</th><th>Доля</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Браузеры</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <table class="data-table" id="browsersTable">
+            <thead>
+              <tr><th>Браузер</th><th>Переходы</th><th>Доля</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Последняя активность</h2>
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <table class="data-table" id="recentClicksTable">
+          <thead>
+            <tr><th>Время</th><th>Страна</th><th>Устройство</th><th>Браузер</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let token = localStorage.getItem('token');
+    let dailyChart = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      if (token) {
+        checkAuth();
+      }
+    });
+
+    // Auth functions
+    function switchAuthTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+
+      if (tab === 'login') {
+        document.querySelectorAll('.auth-tab')[0].classList.add('active');
+        document.getElementById('loginTab').classList.remove('hidden');
+        document.getElementById('registerTab').classList.add('hidden');
+      } else {
+        document.querySelectorAll('.auth-tab')[1].classList.add('active');
+        document.getElementById('loginTab').classList.add('hidden');
+        document.getElementById('registerTab').classList.remove('hidden');
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showMessage('loginMessage', data.message || 'Ошибка входа', 'error');
+          return;
+        }
+
+        token = data.token;
+        localStorage.setItem('token', token);
+        showDashboard();
+        document.getElementById('userEmail').textContent = data.user.email;
+        loadUrls();
+      } catch (err) {
+        showMessage('loginMessage', 'Ошибка соединения. Попробуйте снова.', 'error');
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showMessage('registerMessage', data.message || 'Ошибка регистрации', 'error');
+          return;
+        }
+
+        token = data.token;
+        localStorage.setItem('token', token);
+        showDashboard();
+        document.getElementById('userEmail').textContent = data.user.email;
+        loadUrls();
+      } catch (err) {
+        showMessage('registerMessage', 'Ошибка соединения. Попробуйте снова.', 'error');
+      }
+    }
+
+    async function checkAuth() {
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('userEmail').textContent = data.user.email;
+          showDashboard();
+          loadUrls();
+        } else {
+          handleLogout();
+        }
+      } catch (err) {
+        handleLogout();
+      }
+    }
+
+    function handleLogout() {
+      token = null;
+      localStorage.removeItem('token');
+      document.getElementById('authSection').classList.remove('hidden');
+      document.getElementById('dashboardSection').classList.add('hidden');
+      document.getElementById('analyticsSection').classList.add('hidden');
+      document.getElementById('headerActions').classList.add('hidden');
+    }
+
+    function showDashboard() {
+      document.getElementById('authSection').classList.add('hidden');
+      document.getElementById('dashboardSection').classList.remove('hidden');
+      document.getElementById('analyticsSection').classList.add('hidden');
+      document.getElementById('headerActions').classList.remove('hidden');
+    }
+
+    // URL functions
+    async function handleCreateUrl(e) {
+      e.preventDefault();
+      const originalUrl = document.getElementById('originalUrl').value;
+      const alias = document.getElementById('alias').value || undefined;
+      const expiresAt = document.getElementById('expiresAt').value || undefined;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/urls`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ originalUrl, alias, expiresAt })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showMessage('createMessage', data.message || 'Не удалось создать ссылку', 'error');
+          return;
+        }
+
+        showMessage('createMessage', `Ссылка создана: ${data.shortUrl}`, 'success');
+        document.getElementById('createUrlForm').reset();
+        loadUrls();
+      } catch (err) {
+        showMessage('createMessage', 'Ошибка соединения. Попробуйте снова.', 'error');
+      }
+    }
+
+    async function loadUrls(page = 1) {
+      try {
+        const res = await fetch(`${API_BASE}/api/urls?page=${page}&limit=10`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) return;
+
+        renderUrlList(data.urls);
+        renderPagination(data.page, data.totalPages);
+      } catch (err) {
+        console.error('Не удалось загрузить ссылки:', err);
+      }
+    }
+
+    function renderUrlList(urls) {
+      const tbody = document.getElementById('urlList');
+      const emptyState = document.getElementById('emptyState');
+
+      if (urls.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      tbody.innerHTML = urls.map(url => `
+        <tr>
+          <td data-label="Короткая ссылка">
+            <a href="${url.fullShortUrl}" target="_blank" class="url-short">${url.short_url}</a>
+          </td>
+          <td data-label="Оригинал">
+            <span class="url-original" title="${url.original_url}">${url.original_url}</span>
+          </td>
+          <td data-label="Переходы">
+            <span class="clicks-badge">${url.click_count} переходов</span>
+          </td>
+          <td data-label="Создана">${url.created_at}</td>
+          <td data-label="Действия">
+            <div class="url-actions">
+              <button class="btn btn-secondary btn-sm" onclick="copyUrl('${url.fullShortUrl}')">Копировать</button>
+              <button class="btn btn-secondary btn-sm" onclick="showAnalytics('${url.short_url}')">Аналитика</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteUrl('${url.short_url}')">Удалить</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderPagination(current, total) {
+      const pagination = document.getElementById('pagination');
+
+      if (total <= 1) {
+        pagination.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+      for (let i = 1; i <= total; i++) {
+        html += `<button class="pagination-btn ${i === current ? 'active' : ''}" onclick="loadUrls(${i})">${i}</button>`;
+      }
+      pagination.innerHTML = html;
+    }
+
+    function copyUrl(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        alert('Ссылка скопирована в буфер обмена!');
+      });
+    }
+
+    async function deleteUrl(shortUrl) {
+      if (!confirm('Вы уверены, что хотите удалить эту ссылку?')) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/urls/${shortUrl}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok || res.status === 204) {
+          loadUrls();
+        }
+      } catch (err) {
+        alert('Не удалось удалить ссылку');
+      }
+    }
+
+    // Analytics
+    async function showAnalytics(shortUrl) {
+      document.getElementById('dashboardSection').classList.add('hidden');
+      document.getElementById('analyticsSection').classList.remove('hidden');
+      document.getElementById('analyticsShortUrl').textContent = shortUrl;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/analytics/${shortUrl}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert('Не удалось загрузить аналитику');
+          showDashboard();
+          return;
+        }
+
+        renderAnalytics(data.analytics);
+      } catch (err) {
+        console.error('Ошибка аналитики:', err);
+        alert('Не удалось загрузить аналитику');
+        showDashboard();
+      }
+    }
+
+    function renderAnalytics(analytics) {
+      document.getElementById('totalClicks').textContent = analytics.summary.total_clicks || 0;
+      document.getElementById('uniqueVisitors').textContent = analytics.summary.unique_visitors || 0;
+
+      renderDailyChart(analytics.daily);
+      renderTable('countriesTable', analytics.countries, ['country', 'clicks', 'percentage']);
+      renderTable('devicesTable', analytics.devices, ['device_type', 'clicks', 'percentage']);
+      renderTable('browsersTable', analytics.browsers, ['browser', 'clicks', 'percentage']);
+
+      const recentBody = document.querySelector('#recentClicksTable tbody');
+      recentBody.innerHTML = analytics.recentClicks.length ? analytics.recentClicks.map(click => `
+        <tr>
+          <td>${click.click_time}</td>
+          <td>${click.country || 'Неизвестно'}</td>
+          <td>${click.device_type || 'Неизвестно'}</td>
+          <td>${click.browser || 'Неизвестно'}</td>
+        </tr>
+      `).join('') : '<tr><td colspan="4" style="text-align:center;color:#5e6c84;">Активности пока нет</td></tr>';
+    }
+
+    function renderDailyChart(daily) {
+      const ctx = document.getElementById('dailyChart').getContext('2d');
+
+      if (dailyChart) dailyChart.destroy();
+
+      dailyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: daily.map(d => d.date),
+          datasets: [{
+            label: 'Переходы',
+            data: daily.map(d => d.clicks),
+            borderColor: '#0052cc',
+            backgroundColor: 'rgba(0, 82, 204, 0.1)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function renderTable(tableId, data, fields) {
+      const tbody = document.querySelector(`#${tableId} tbody`);
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${fields.length}" style="text-align:center;color:#5e6c84;">Нет данных</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(row => `
+        <tr>
+          ${fields.map(field => {
+            if (field === 'percentage') {
+              return `<td>
+                <span class="progress-bar"><span class="progress-fill" style="width: ${row[field] || 0}%"></span></span>
+                ${row[field] || 0}%
+              </td>`;
+            }
+            return `<td>${row[field] || 'Неизвестно'}</td>`;
+          }).join('')}
+        </tr>
+      `).join('');
+    }
+
+    function showMessage(elementId, message, type) {
+      const el = document.getElementById(elementId);
+      el.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+      setTimeout(() => { el.innerHTML = ''; }, 5000);
+    }
+  </script>
+</body>
+</html>

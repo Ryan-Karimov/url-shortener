@@ -4,18 +4,49 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - PORT=3000
       - DB_USER=postgres
-      - DB_PASSWORD=Kr18111998
+      - DB_PASSWORD=postgres
       - DB_HOST=db
       - DB_NAME=url_shortener
       - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
   db:
-    image: postgres:13
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Kr18111998
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: url_shortener
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
